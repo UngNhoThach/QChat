@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1089238207929",
+    "project_id": "qchat-2969a",
+    "storage_bucket": "qchat-2969a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089238207929:android:5ee73f49e3b6261c4c7a68",
+        "android_client_info": {
+          "package_name": "com.example.qchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1089238207929-1skmogf30sc6ndi2hcncs77vs3d1kkce.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.qchat",
+            "certificate_hash": "228a4cc9aea7140abec8694a0d43c6654c196c2a"
+          }
+        },
+        {
+          "client_id": "1089238207929-kn5bra9gbsq9ckf9oamgkmpda0dtpfdh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAemJ0Axd-r5-isE3cY6YJx3voNyY7iCw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1089238207929-bb32k5adjosv3gli85t8s1kf49m34dp0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
