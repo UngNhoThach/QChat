@@ -89,7 +89,6 @@ class _chat_profile_screenState extends State<chat_profile_screen> {
       // Pick an image.
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
-        log('${image.path}  \n ${image.mimeType}');
         // hiding bottomSheet
         setState(() {
           imgPath = image.path;
@@ -105,12 +104,12 @@ class _chat_profile_screenState extends State<chat_profile_screen> {
       // Pick an image.
       final XFile? image = await picker.pickImage(source: ImageSource.camera);
       if (image != null) {
-        log('${image.path}  \n ${image.mimeType}');
         // hiding bottomSheet
         setState(() {
           imgPath = image.path;
         });
       }
+
       AuthProvider.updateProfilePicture(File('$imgPath'));
       Navigator.pop(context);
     }

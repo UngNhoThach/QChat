@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'dart:developer';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:qchat/features/models/chat_user_model.dart';
@@ -19,6 +18,9 @@ class chatDetails extends StatefulWidget {
 }
 
 class _chatDetailsState extends State<chatDetails> {
+  //controller
+  final textInputController = TextEditingController();
+
   // list chat messages
   List<messagesModel> _listMessages = [];
 
@@ -62,9 +64,12 @@ class _chatDetailsState extends State<chatDetails> {
           return Center(child: Text('Error loading data'));
         } else {
           final data = snapshot.data?.docs;
-          log('Data:  ${jsonEncode(data![0].data())}');
+
+          _listMessages =
+              data?.map((e) => messagesModel.fromJson(e.data())).toList() ?? [];
           return _listMessages.isNotEmpty
               ? ListView.builder(
+                  // reverse: true,
                   shrinkWrap: true,
                   itemCount: _listMessages.length,
                   physics: const BouncingScrollPhysics(),
@@ -75,8 +80,8 @@ class _chatDetailsState extends State<chatDetails> {
                   })
               : Center(
                   child: Text(
-                    'No results found',
-                    style: TextStyle(fontSize: 18, color: colors.color_button),
+                    'Hi Qchat',
+                    style: TextStyle(fontSize: 18, color: Colors.red),
                   ),
                 );
         }
@@ -164,6 +169,7 @@ class _chatDetailsState extends State<chatDetails> {
           ),
           Expanded(
             child: TextField(
+              controller: textInputController,
               decoration: InputDecoration(
                   hintText: "Write message...",
                   hintStyle: TextStyle(color: Colors.black54),
@@ -199,7 +205,13 @@ class _chatDetailsState extends State<chatDetails> {
             width: md.width / 6,
             child: FloatingActionButton(
               heroTag: null,
-              onPressed: () {},
+              onPressed: () {
+                if (textInputController.text.isNotEmpty) {
+                  AuthProvider.sendMessages(
+                      widget.userModel, textInputController.text);
+                  textInputController.text = ' ';
+                }
+              },
               child: Icon(
                 Icons.send,
                 color: Colors.white,

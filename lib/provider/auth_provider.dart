@@ -45,11 +45,8 @@ class AuthProvider {
 
   // create a new user
   static Future<void> userCreate() async {
-    var now = new DateTime.now();
-    String formatDate = (new DateFormat("yyyy-MM-dd").format(now));
-
-    // DateTime now = DateTime.now();
-    // String formatedDate = DateFormat('kk:mm:ss \n EEE d MMM').format(now);
+    // current time
+    final time = DateTime.now().millisecondsSinceEpoch.toString();
 
     final chatModel = chatUserModel(
       uid: user.uid,
@@ -57,8 +54,8 @@ class AuthProvider {
       image: user.photoURL,
       email: user.email,
       about: 'By Nthach',
-      createAt: '',
-      lastOnline: '',
+      createAt: time,
+      lastOnline: time,
       pushToken: '',
       age: '19',
       isOnline: true,
@@ -93,7 +90,6 @@ class AuthProvider {
   static Future<void> updateProfilePicture(File file) async {
     // This will get the filename with file extension
     final ext = file.path.split('.').last;
-    log('Extension: ' + ext);
 
     // Creating storage refernce (this will create a images folder in cloud storage)
     final ref = storage.ref().child('profie_picture/${user.uid}.$ext');
@@ -107,7 +103,7 @@ class AuthProvider {
     await firestore
         .collection('users')
         .doc(user.uid)
-        .update({'image:': me!.image});
+        .update({'image': me!.image});
   }
 
   // ****************************************** CHAT SCREEN APIs ****************************************
@@ -122,20 +118,53 @@ class AuthProvider {
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(
       chatUserModel userModel) {
     return firestore
-        .collection('users/${getConvesationId(userModel.uid)}/messages/')
+        .collection('chats/${getConvesationId(userModel.uid!)}/messages/')
         .snapshots();
   }
 
   // sending messages
-  // static Future<void> sendMessages() async {
+  static Future<void> sendMessages(chatUserModel userModel, String msg) async {
+    // current time
+    final time = DateTime.now().millisecondsSinceEpoch.toString();
 
-  //   // DateTime now = DateTime.now();
-  //   // String formatedDate = DateFormat('kk:mm:ss \n EEE d MMM').format(now);
+    // mess to send
+    final messModel = messagesModel(
+        msg: msg,
+        type: Type.text,
+        from_name: user.displayName!,
+        from_uid: user.uid,
+        last_time: '',
+        to_name: userModel.name!,
+        to_uid: userModel.uid!,
+        time_sent: time);
 
-  //   final messModel = messagesModel(msg: 'Thach', read: 'alo', told: 'hello', ID: , type: Type.text, sent: 'hi');
-  //   return await firestore
-  //       .collection('users')
-  //       .doc(user.uid)
-  //       .set(messModel.toJson());
-  // }
+    return await firestore
+        .collection('chats/${getConvesationId(userModel.uid!)}/messages/')
+        .doc(messModel.time_sent)
+        .set(messModel.toJson());
+  }
+
+  // update status of last message
+  static Future<void> updateLastMessage(messagesModel mess) async {
+    try {
+      return await firestore
+          .collection('chats/${getConvesationId(mess.from_uid)}/messages/')
+          .doc(mess.time_sent)
+          .update(
+              {'last_time': DateTime.now().millisecondsSinceEpoch.toString()});
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // get last message from user
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(
+      chatUserModel userModel) {
+    return FirebaseFirestore.instance
+        .collection('chats/${getConvesationId(userModel.uid!)}/messages/')
+        .orderBy('time_sent',
+            descending: true) // Sort by timestamp in descending order
+        .limit(1) // Limit to only one result (the most recent message)
+        .snapshots();
+  }
 }

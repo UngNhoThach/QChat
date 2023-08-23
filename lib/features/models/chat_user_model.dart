@@ -1,6 +1,6 @@
 class chatUserModel {
   late String? image;
-  late String uid;
+  late String? uid;
   late String? about;
   late String? name;
   late bool? isOnline;
@@ -29,11 +29,11 @@ class chatUserModel {
 
   chatUserModel.fromJson(Map<String, dynamic> json) {
     image = json['image'] ?? '';
-    uid = json['uid'];
+    uid = json['uid'] ?? '';
     about = json['about'] ?? '';
     name = json['name'] ?? '';
     isOnline = json['isOnline'] ?? false;
-    lastOnline = json['lastOnline'] ?? '';
+    lastOnline = json['lastOnline'] ?? ' ';
     createAt = json['createAt'] ?? '';
     email = json['email'] ?? '';
     phone = json['phone'] ?? '';

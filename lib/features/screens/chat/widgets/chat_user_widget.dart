@@ -1,8 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:qchat/main.dart';
+import 'package:qchat/provider/auth_provider.dart';
 import '../../../models/chat_user_model.dart';
 import '../../../widgets/nextscreen.dart';
 import '../chat_details_sceen.dart';
+import '../../../../utils/date_utils.dart';
 
 class chat_user_widget extends StatefulWidget {
   final chatUserModel userModel;
@@ -20,7 +25,9 @@ class chat_user_widget extends StatefulWidget {
 }
 
 class _chat_user_widgetState extends State<chat_user_widget> {
-// variables
+  // variables
+  // list of users all
+  late List<chatUserModel> _list = [];
 
   // waitting for checkSatusUser run first
   Future<void> _initializeData() async {
@@ -35,66 +42,125 @@ class _chat_user_widgetState extends State<chat_user_widget> {
   @override
   void initState() {
     super.initState();
-    // Future.delayed(Duration.zero).then((value) => checkSatusUser());
-
     _initializeData();
+    log('${AuthProvider.getLastMessage(widget.userModel)}');
   }
 
   @override
   Widget build(BuildContext context) {
     md = MediaQuery.of(context).size;
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 2,
-      child: InkWell(
-          onTap: () {
-            nextScreen(
-                context,
-                chatDetails(
-                  userModel: widget.userModel,
-                ));
-          },
-          child: ListTile(
-            // user profile picture
+    return StreamBuilder(
+        stream: AuthProvider.getLastMessage(widget.userModel),
+        builder: (context, snapshot) {
+          final data = snapshot.data.docs();
+          _list = data.map((e) => chatUserModel.fromJson(e.data())).toList();
+          return Card(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            elevation: 2,
+            child: InkWell(
+                onTap: () {
+                  nextScreen(
+                      context,
+                      chatDetails(
+                        userModel: widget.userModel,
+                      ));
+                },
+                child: ListTile(
+                  // user profile picture
 
-            leading: SizedBox(
-              height: md.height * 0.08,
-              width: md.height * 0.08,
-              child: Stack(
-                clipBehavior: Clip.none,
-                fit: StackFit.expand,
-                children: [
-                  CircleAvatar(
-                      backgroundImage:
-                          NetworkImage('${widget.userModel.image}')),
-                  Positioned(
-                    bottom: 0,
-                    right: 10,
-                    child: CircleAvatar(
-                      backgroundColor: widget.colorList[widget.index],
-                      radius: 8,
+                  leading: SizedBox(
+                    height: md.height * 0.08,
+                    width: md.height * 0.08,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      fit: StackFit.expand,
+                      children: [
+                        CircleAvatar(
+                            backgroundImage:
+                                NetworkImage('${widget.userModel.image}')),
+                        Positioned(
+                          bottom: 0.h,
+                          right: 10.w,
+                          child: CircleAvatar(
+                            backgroundColor: widget.colorList[widget.index],
+                            radius: 8,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
 
-            // name of the user
-            title: Text(widget.userModel.name.toString()),
+                  // name of the user
+                  title: Text(widget.userModel.name.toString()),
 
-            // details of the user
-            subtitle: Text(
-              widget.userModel.about.toString(),
-              maxLines: 1,
-            ),
+                  // details of the user
+                  subtitle: Text(
+                    widget.userModel.about.toString(),
+                    maxLines: 1,
+                  ),
 
-            // last message of the user
-            trailing: Text(
-              '9:00 AM',
-              style: TextStyle(color: Colors.black54),
-            ),
-          )),
-    );
+                  // last message of the user
+                  trailing: Text(
+                    '${date_utils.readTimestamp(widget.userModel.lastOnline!)}',
+                    style: TextStyle(color: Colors.black54),
+                  ),
+                )),
+          );
+        });
   }
 }
+
+// Card(
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//       elevation: 2,
+//       child: InkWell(
+//           onTap: () {
+//             nextScreen(
+//                 context,
+//                 chatDetails(
+//                   userModel: widget.userModel,
+//                 ));
+//           },
+//           child: ListTile(
+//             // user profile picture
+
+//             leading: SizedBox(
+//               height: md.height * 0.08,
+//               width: md.height * 0.08,
+//               child: Stack(
+//                 clipBehavior: Clip.none,
+//                 fit: StackFit.expand,
+//                 children: [
+//                   CircleAvatar(
+//                       backgroundImage:
+//                           NetworkImage('${widget.userModel.image}')),
+//                   Positioned(
+//                     bottom: 0.h,
+//                     right: 10.w,
+//                     child: CircleAvatar(
+//                       backgroundColor: widget.colorList[widget.index],
+//                       radius: 8,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+
+//             // name of the user
+//             title: Text(widget.userModel.name.toString()),
+
+//             // details of the user
+//             subtitle: Text(
+//               widget.userModel.about.toString(),
+//               maxLines: 1,
+//             ),
+
+//             // last message of the user
+//             trailing: Text(
+//               '${date_utils.readTimestamp(widget.userModel.lastOnline!)}',
+//               style: TextStyle(color: Colors.black54),
+//             ),
+//           )),
+//     );
