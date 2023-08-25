@@ -79,6 +79,13 @@ dependencies:
 
   # storage file
   firebase_storage: ^11.2.6
+
+  # pick icon message
+  emoji_picker_flutter: ^1.6.1
+
+  # pick multi image 
+  multi_image_picker: ^4.8.01
+  
   
 dev_dependencies:
   flutter_test:

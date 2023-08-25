@@ -41,7 +41,6 @@ class _homeScreenState extends State<homeScreen> {
         Navigator.pop(context);
         if (await AuthProvider.userExists()) {
           nextScreenRe(context, chatHome());
-          dialogs.showSnackBar(context, 'user is already, just sign in! ');
         } else {
           await AuthProvider.userCreate().then((user) {
             // developer.log('User: ${user.user}');

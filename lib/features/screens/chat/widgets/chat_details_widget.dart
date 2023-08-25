@@ -1,10 +1,10 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:qchat/provider/auth_provider.dart';
 import '../../../../utils/date_utils.dart';
 import '../../../models/chat_details_model.dart';
+import '../../../widgets/square.dart';
 
 class chat_details_widget extends StatefulWidget {
   final messagesModel messModel;
@@ -24,10 +24,9 @@ class _chat_details_widgetState extends State<chat_details_widget> {
   }
 
   // send message
-
   Widget _sendMessage() {
     return Container(
-      padding: EdgeInsets.only(left: 15, right: 15, top: 30),
+      // padding: EdgeInsets.only(left: 15, right: 15, top: 30),
       child: Align(
           // alignment: Alignment.topLeft,
           child: Row(
@@ -39,9 +38,9 @@ class _chat_details_widgetState extends State<chat_details_widget> {
                 Text('${date_utils.readTimestamp(widget.messModel.time_sent)}'),
                 widget.messModel.last_time.isNotEmpty
                     ? Text('Đã xem',
-                        style: TextStyle(fontSize: 13, color: Colors.green))
+                        style: TextStyle(fontSize: 13.sp, color: Colors.green))
                     : Text('Đã gửi',
-                        style: TextStyle(fontSize: 13, color: Colors.green)),
+                        style: TextStyle(fontSize: 13.sp, color: Colors.green)),
               ],
             ),
           ),
@@ -55,20 +54,35 @@ class _chat_details_widgetState extends State<chat_details_widget> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 89, 189, 232),
-                      border:
-                          Border.all(color: Color.fromARGB(255, 17, 17, 18)),
-                      //making borders curved
-                      borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
-                          bottomRight: Radius.circular(30))),
-                  constraints: BoxConstraints(maxHeight: double.infinity),
-                  padding: EdgeInsets.all(15),
-                  child: Text(
-                    widget.messModel.msg,
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                    color: Color.fromARGB(255, 89, 189, 232),
+                    border: widget.messModel.type == Type.text
+                        ? Border.all(color: Color.fromARGB(255, 17, 17, 18))
+                        : Border.all(
+                            color: Color.fromARGB(255, 89, 189, 232),
+                            width: 3.0.sp),
+                    //making borders curved
+                    borderRadius: widget.messModel.type == Type.text
+                        ? BorderRadius.only(
+                            topLeft: Radius.circular(30.sp),
+                            topRight: Radius.circular(30.sp),
+                            bottomRight: Radius.circular(30.sp))
+                        : BorderRadius.circular(0),
                   ),
+                  constraints: BoxConstraints(maxHeight: double.infinity),
+                  padding: widget.messModel.type == Type.text
+                      ? EdgeInsets.all(15.sp)
+                      : EdgeInsets.all(0),
+                  child: widget.messModel.type == Type.text
+                      ? Text(
+                          widget.messModel.msg,
+                          style: TextStyle(fontSize: 16.sp),
+                        )
+                      : img_Send(
+                          height: 120.sp,
+                          width: 120.sp,
+                          img: '${widget.messModel.msg}',
+                          onPress: () {},
+                        ),
                 ),
               ],
             ),
@@ -88,7 +102,7 @@ class _chat_details_widgetState extends State<chat_details_widget> {
       }
     }
     return Container(
-      padding: EdgeInsets.only(left: 15, right: 15, top: 30),
+      // padding: EdgeInsets.only(left: 15, right: 15, top: 30),
       child: Align(
           // alignment: Alignment.topLeft,
           child: Row(
@@ -101,15 +115,32 @@ class _chat_details_widgetState extends State<chat_details_widget> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
+                    border: widget.messModel.type == Type.text
+                        ? null
+                        : Border.all(
+                            color: Colors.grey.shade200, // Màu border
+                            width: 3.0.sp, // Độ dày của border
+                          ),
+                    borderRadius: widget.messModel.type == Type.text
+                        ? BorderRadius.circular(20.sp)
+                        : BorderRadius.circular(0),
                     color: (Colors.grey.shade200),
                   ),
                   constraints: BoxConstraints(maxHeight: double.infinity),
-                  padding: EdgeInsets.all(15),
-                  child: Text(
-                    widget.messModel.msg,
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  padding: widget.messModel.type == Type.text
+                      ? EdgeInsets.all(15.sp)
+                      : EdgeInsets.all(0),
+                  child: widget.messModel.type == Type.text
+                      ? Text(
+                          widget.messModel.msg,
+                          style: TextStyle(fontSize: 16.sp),
+                        )
+                      : img_Send(
+                          height: 120.sp,
+                          width: 120.sp,
+                          img: '${widget.messModel.msg}',
+                          onPress: () {},
+                        ),
                 ),
               ],
             ),

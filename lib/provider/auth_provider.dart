@@ -91,7 +91,7 @@ class AuthProvider {
     // This will get the filename with file extension
     final ext = file.path.split('.').last;
 
-    // Creating storage refernce (this will create a images folder in cloud storage)
+    // storage file with path
     final ref = storage.ref().child('profie_picture/${user.uid}.$ext');
 
     //Use putFile method to upload the File
@@ -123,14 +123,15 @@ class AuthProvider {
   }
 
   // sending messages
-  static Future<void> sendMessages(chatUserModel userModel, String msg) async {
+  static Future<void> sendMessages(
+      chatUserModel userModel, String msg, Type type) async {
     // current time
     final time = DateTime.now().millisecondsSinceEpoch.toString();
 
     // mess to send
     final messModel = messagesModel(
         msg: msg,
-        type: Type.text,
+        type: type,
         from_name: user.displayName!,
         from_uid: user.uid,
         last_time: '',
@@ -166,5 +167,25 @@ class AuthProvider {
             descending: true) // Sort by timestamp in descending order
         .limit(1) // Limit to only one result (the most recent message)
         .snapshots();
+  }
+
+  // send messages image
+  static Future<void> sendMessagesImage(
+      chatUserModel userModel, File file) async {
+    // This will get the filename with file extension
+    final ext = file.path.split('.').last;
+
+    // storage file with path
+    final ref = storage.ref().child(
+        'images/${getConvesationId(userModel.uid!)}/${DateTime.now().millisecondsSinceEpoch.toString()}.$ext');
+
+    //Use putFile method to upload the File
+    await ref.putFile(file, SettableMetadata(contentType: 'image/$ext')).then(
+        (p0) => {log('Data transferred:  ${p0.bytesTransferred / 1000} KB')});
+
+    // updating image in firestore database
+    final imageURL = await ref.getDownloadURL(); // url image from storage
+    await sendMessages(
+        userModel, imageURL, Type.image); // send messages with image type
   }
 }

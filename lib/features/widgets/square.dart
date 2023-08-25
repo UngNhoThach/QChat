@@ -96,6 +96,44 @@ class Circle_img_profile extends StatelessWidget {
   }
 }
 
+// images send messages
+class img_Send extends StatelessWidget {
+  final Function()? onPress;
+  final double height;
+  final double width;
+  final String img;
+
+  img_Send({
+    super.key,
+    required this.onPress,
+    required this.height,
+    required this.width,
+    required this.img,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      width: width,
+      child: Stack(
+        clipBehavior: Clip.none,
+        fit: StackFit.expand,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(img),
+                fit: BoxFit.cover, // To fill the rectangle with the image
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class Circle_img_user extends StatelessWidget {
   final double height;
   final double width;
