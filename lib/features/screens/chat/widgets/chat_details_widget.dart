@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:qchat/provider/auth_provider.dart';
 import '../../../../utils/date_utils.dart';
@@ -16,6 +17,25 @@ class chat_details_widget extends StatefulWidget {
 }
 
 class _chat_details_widgetState extends State<chat_details_widget> {
+  @override
+  void initState() {
+    super.initState(); // for updating user status according to lifecycle events
+    SystemChannels.lifecycle.setMessageHandler((message) {
+      // ignore: unnecessary_null_comparison
+      if (AuthProvider.auth.currentUser != null) {
+        if (message.toString().contains('resume'))
+          AuthProvider.updateStatusUser(true);
+        if (message.toString().contains('pause'))
+          AuthProvider.updateStatusUser(false);
+        if (message.toString().contains('inactive')) {
+          AuthProvider.updateStatusUser(
+              false); // Xử lý khi ứng dụng bị tạm dừng hoàn toàn
+        }
+      }
+      return Future.value(message);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return AuthProvider.user.uid == widget.messModel.from_uid

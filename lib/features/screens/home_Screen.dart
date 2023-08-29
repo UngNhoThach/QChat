@@ -43,8 +43,6 @@ class _homeScreenState extends State<homeScreen> {
           nextScreenRe(context, chatHome());
         } else {
           await AuthProvider.userCreate().then((user) {
-            // developer.log('User: ${user.user}');
-            // developer.log('UserAddtionalInfo: ${user.additionalUserInfo}');
             nextScreenRe(context, chatHome());
           });
         }
@@ -210,8 +208,6 @@ class _homeScreenState extends State<homeScreen> {
                                   child: Column(
                                     children: [
                                       MyButton(
-                                        height: md.height * .07,
-                                        width: md.height * .7,
                                         style: textString.text_Button,
                                         text: 'Login phone number',
                                         onTap: (() {

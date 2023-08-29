@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:http/http.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:qchat/features/models/chat_details_model.dart';
 import '../features/models/chat_user_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -106,6 +107,24 @@ class AuthProvider {
         .update({'image': me!.image});
   }
 
+  // getting spefific user info
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getUserInfo(
+      chatUserModel model) {
+    return firestore
+        .collection('users')
+        .where('uid', isEqualTo: model.uid)
+        .snapshots();
+  }
+
+  // update user status of the user
+  static Future<void> updateStatusUser(bool isOnline) async {
+    return await firestore.collection('users').doc(user.uid).update({
+      'isOnline': isOnline,
+      'lastOnline': DateTime.now().millisecondsSinceEpoch.toString(),
+      'pushToken': me?.pushToken,
+    });
+  }
+
   // ****************************************** CHAT SCREEN APIs ****************************************
 
   // create string convesation id
@@ -142,7 +161,9 @@ class AuthProvider {
     return await firestore
         .collection('chats/${getConvesationId(userModel.uid!)}/messages/')
         .doc(messModel.time_sent)
-        .set(messModel.toJson());
+        .set(messModel.toJson())
+        .then((value) => sendMessagesNotifications(
+            userModel, type == Type.text ? msg : 'imges'));
   }
 
   // update status of last message
@@ -187,5 +208,59 @@ class AuthProvider {
     final imageURL = await ref.getDownloadURL(); // url image from storage
     await sendMessages(
         userModel, imageURL, Type.image); // send messages with image type
+  }
+
+  // ****************************************** Push notifications ****************************************
+
+  // for accessing firebase messages (Push notifications)
+  static FirebaseMessaging FCMmessaging = FirebaseMessaging.instance;
+
+  //  for getting token notifications
+  static Future<void> FCMtoken() async {
+    await FCMmessaging.requestPermission();
+    await FCMmessaging.getToken().then((value) {
+      me?.pushToken = value;
+      log('TOKEN: ${value}');
+    });
+  }
+
+  // for send notifications
+  static Future sendMessagesNotifications(
+      chatUserModel userModel, String msg) async {
+    String url = 'https://fcm.googleapis.com/fcm/send';
+    final body = {
+      "to": userModel.pushToken,
+      "notification": {
+        "body": msg,
+        "OrganizationId": "2",
+        "content_available": true,
+        "priority": "high",
+        "subtitle": "Elementary School",
+        "title": me?.name,
+      },
+      "data": {
+        "priority": "high",
+        "sound": "app_sound.wav",
+        "content_available": true,
+        "bodyText": msg,
+        "organization": "Elementary school"
+      }
+    };
+    try {
+      final result = await post(
+        Uri.parse(url),
+        body: jsonEncode(body),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader:
+              'Bearer AAAA_ZuoDbk:APA91bEnJO4dhwXreSIPV0J3qmj1ppTuKgO-_uF8nW6XEGXUq2dFBOfDXHBxFHyjtOWa3mzCAzvZ5z4moPVKiFMIxVhgy6cln0mvFyyNB0M5eW3XlSqMgolYRAUXDbow8fYW_Q0izvZy'
+        },
+      );
+      log('${result.body}');
+      return jsonDecode(result.body);
+    } catch (e) {
+      print(e);
+      return 'error $e';
+    }
   }
 }

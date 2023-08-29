@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:qchat/constants/textString.dart';
 import 'package:qchat/features/screens/chat/widgets/chat_user_widget.dart';
 
@@ -77,6 +79,25 @@ class _chat_user_screenState extends State<chat_user_screen> {
   void initState() {
     super.initState();
     _userListFuture = userList(AuthProvider.getAllUsers());
+
+    // for setting user status to active default when user login is true active
+    AuthProvider.updateStatusUser(true);
+
+    // for updating user status according to lifecycle events
+    SystemChannels.lifecycle.setMessageHandler((message) {
+      // ignore: unnecessary_null_comparison
+      if (AuthProvider.auth.currentUser != null) {
+        if (message.toString().contains('resume'))
+          AuthProvider.updateStatusUser(true);
+        if (message.toString().contains('pause'))
+          AuthProvider.updateStatusUser(false);
+        if (message.toString().contains('inactive')) {
+          AuthProvider.updateStatusUser(
+              false); // Xử lý khi ứng dụng bị tạm dừng hoàn toàn
+        }
+      }
+      return Future.value(message);
+    });
   }
 
   @override
@@ -113,11 +134,11 @@ class _chat_user_screenState extends State<chat_user_screen> {
                           onPress: () {
                             setState(() {});
                           },
-                          sizeIcon: 16,
-                          height: md.height / 30,
-                          width: md.width / 4,
+                          sizeIcon: 16.sp,
+                          height: 30.h,
+                          width: null,
                           style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 13.sp,
                               color: Colors.white,
                               fontWeight: FontWeight.bold),
                           text: 'Add New',
@@ -129,7 +150,7 @@ class _chat_user_screenState extends State<chat_user_screen> {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 5),
                   child: SizedBox(
-                    height: md.height * 0.06,
+                    height: 40.h,
                     child: TextField(
                       // when search text changes then update user search
                       onChanged: (value) {
@@ -138,21 +159,22 @@ class _chat_user_screenState extends State<chat_user_screen> {
 
                       decoration: InputDecoration(
                         hintText: "Search...",
-                        hintStyle: TextStyle(color: Colors.grey.shade600),
+                        hintStyle: TextStyle(
+                            color: Colors.grey.shade600, fontSize: 13.sp),
                         prefixIcon: IconButton(
                           onPressed: () => {},
                           icon: Icon(Icons.search),
                           color: Colors.grey.shade600,
-                          iconSize: 20,
+                          iconSize: 20.sp,
                         ),
                         fillColor: Colors.grey.shade100,
                         border: InputBorder.none,
                         enabledBorder: new OutlineInputBorder(
-                          borderRadius: new BorderRadius.circular(20.0),
+                          borderRadius: new BorderRadius.circular(20.0.sp),
                           borderSide: BorderSide(color: Colors.grey.shade900),
                         ),
                         focusedBorder: new OutlineInputBorder(
-                          borderRadius: new BorderRadius.circular(20.0),
+                          borderRadius: new BorderRadius.circular(20.0.sp),
                           // borderSide: BorderSide(color: Colors.lightBlueAccent),
                         ),
                       ),

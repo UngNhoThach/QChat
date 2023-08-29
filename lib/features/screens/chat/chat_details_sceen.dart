@@ -1,15 +1,19 @@
 import 'dart:io';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:qchat/features/models/chat_user_model.dart';
+import 'package:qchat/features/screens/chat/view_profile_screen.dart';
 import 'package:qchat/features/screens/chat/widgets/chat_details_widget.dart';
+import 'package:qchat/features/widgets/nextscreen.dart';
 import 'package:qchat/provider/auth_provider.dart';
 import '../../../constants/colors.dart';
-
+import '../../../../utils/date_utils.dart';
 import '../../../../main.dart';
 import '../../models/chat_details_model.dart';
+import 'chat_profile_screen.dart';
 
 class chatDetails extends StatefulWidget {
   final chatUserModel userModel;
@@ -23,7 +27,6 @@ class _chatDetailsState extends State<chatDetails> {
   //variables
   bool _emojiShowing = false;
   bool _isUploading = false;
-
   String? imgPath;
 
   //controller
@@ -36,6 +39,25 @@ class _chatDetailsState extends State<chatDetails> {
   void dispose() {
     super.dispose();
     textInputController.dispose();
+  }
+
+  void initState() {
+    // for updating user status according to lifecycle events
+    SystemChannels.lifecycle.setMessageHandler((message) {
+      // ignore: unnecessary_null_comparison
+      if (AuthProvider.auth.currentUser != null) {
+        if (message.toString().contains('resume'))
+          AuthProvider.updateStatusUser(true);
+        if (message.toString().contains('pause'))
+          AuthProvider.updateStatusUser(false);
+        if (message.toString().contains('inactive')) {
+          AuthProvider.updateStatusUser(
+              false); // Xử lý khi ứng dụng bị tạm dừng hoàn toàn
+        }
+      }
+      return Future.value(message);
+    });
+    super.initState();
   }
 
   //chuyển đổi chuỗi văn bản thành một chuỗi ký tự, sau
@@ -57,76 +79,76 @@ class _chatDetailsState extends State<chatDetails> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           elevation: 0,
-          backgroundColor: Colors.white,
           flexibleSpace: _appBar(),
         ),
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              // chat messages
-              child: StreamBuilder(
-                stream: AuthProvider.getAllMessages(widget.userModel),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error loading data'));
-                  } else {
-                    final data = snapshot.data?.docs;
-                    // add data into list
-                    _listMessages = data
-                            ?.map((e) => messagesModel.fromJson(e.data()))
-                            .toList() ??
-                        [];
+        body: Container(
+          height: md.height,
+          width: md.width,
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                // chat messages
+                child: StreamBuilder(
+                  stream: AuthProvider.getAllMessages(widget.userModel),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error loading data'));
+                    } else {
+                      final data = snapshot.data?.docs;
+                      // add data into list
+                      _listMessages = data
+                              ?.map((e) => messagesModel.fromJson(e.data()))
+                              .toList() ??
+                          [];
 
-                    // scroll position at the end of the list
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (_scrollController.hasClients) {
-                        _scrollController
-                            .jumpTo(_scrollController.position.maxScrollExtent);
-                      }
-                    });
-                    return _listMessages.isNotEmpty
-                        ? ListView.builder(
-                            shrinkWrap: true,
-                            controller: _scrollController,
-                            itemCount: _listMessages.length,
-                            physics: BouncingScrollPhysics(),
-                            itemBuilder: (BuildContext context, int index) {
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                    top: 15,
-                                    left: 15,
-                                    right: 15,
-                                    bottom:
-                                        15), // Standard padding for other items
-                                child: chat_details_widget(
-                                  messModel: _listMessages[index],
+                      return SingleChildScrollView(
+                        // Jump to the specified index position with animation.
+                        controller: _scrollController,
+                        child: _listMessages.isNotEmpty
+                            ? ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: _listMessages.length,
+                                physics: BouncingScrollPhysics(),
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                        top: 15,
+                                        left: 15,
+                                        right: 15,
+                                        bottom:
+                                            15), // Standard padding for other items
+                                    child: chat_details_widget(
+                                      messModel: _listMessages[index],
+                                    ),
+                                  );
+                                })
+                            : Center(
+                                child: Text(
+                                  'Hi Qchat',
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.red),
                                 ),
-                              );
-                            })
-                        : Center(
-                            child: Text(
-                              'Hi Qchat',
-                              style: TextStyle(fontSize: 18, color: Colors.red),
-                            ),
-                          );
-                  }
-                },
+                              ),
+                      );
+                    }
+                  },
+                ),
               ),
-            ),
-            // _isUploading ìf waiting for upload
-            if (_isUploading)
-              Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                      padding: EdgeInsets.all(30),
-                      child: CircularProgressIndicator())),
+              // _isUploading ìf waiting for upload
+              if (_isUploading)
+                Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                        padding: EdgeInsets.all(30),
+                        child: CircularProgressIndicator())),
 
-            // chat Input
-            _chatInput(),
-            if (_emojiShowing) emojiSelect(),
-          ],
+              // chat Input
+              _chatInput(),
+              if (_emojiShowing) emojiSelect(),
+            ],
+          ),
         ),
       ),
     );
@@ -134,56 +156,82 @@ class _chatDetailsState extends State<chatDetails> {
 
   // widget app Bar chat
   Widget _appBar() {
-    return SafeArea(
-      child: Container(
-        padding: EdgeInsets.only(right: 15, top: 15),
-        child: Row(
-          children: <Widget>[
-            IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(
-                Icons.arrow_back,
-                color: Colors.black,
+    return InkWell(
+      onTap: () {
+        nextScreen(context, view_profile_screen(userModel: widget.userModel));
+      },
+      child: StreamBuilder(
+          stream: AuthProvider.getUserInfo(widget.userModel),
+          builder: (context, snapshot) {
+            final data = snapshot.data?.docs;
+            // add data into list
+            final _listInfoUser =
+                data?.map((e) => chatUserModel.fromJson(e.data())).toList() ??
+                    [];
+
+            return SafeArea(
+              child: Container(
+                padding: EdgeInsets.all(5),
+                child: Row(
+                  children: <Widget>[
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(
+                      width: md.width / 90,
+                    ),
+                    CircleAvatar(
+                      backgroundImage: _listInfoUser.isNotEmpty
+                          ? NetworkImage("${_listInfoUser[0].image}")
+                          : NetworkImage("${widget.userModel.image}"),
+                      maxRadius: 20,
+                    ),
+                    SizedBox(
+                      width: md.width / 30,
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            _listInfoUser.isNotEmpty
+                                ? '${_listInfoUser[0].name}'
+                                : '${widget.userModel.name}',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          SizedBox(
+                            width: md.width / 45,
+                          ),
+                          Text(
+                            style: TextStyle(color: Colors.white, fontSize: 13),
+                            _listInfoUser.isNotEmpty
+                                ? _listInfoUser[0].isOnline == true
+                                    ? 'Online'
+                                    : '${date_utils.readTimestamp('${_listInfoUser[0].lastOnline}')}'
+                                : '${widget.userModel.lastOnline}',
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.settings,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(
-              width: md.width / 90,
-            ),
-            CircleAvatar(
-              backgroundImage: NetworkImage("${widget.userModel.image}"),
-              maxRadius: 20,
-            ),
-            SizedBox(
-              width: md.width / 30,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    '${widget.userModel.name}',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                  SizedBox(
-                    width: md.width / 45,
-                  ),
-                  Text(
-                    "Last time on online",
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.settings,
-              color: Colors.black54,
-            ),
-          ],
-        ),
-      ),
+            );
+          }),
     );
   }
 
@@ -223,20 +271,20 @@ class _chatDetailsState extends State<chatDetails> {
               child: TextField(
                 onTap: () {
                   if (_emojiShowing)
-                    setState(() {
-                      _emojiShowing = !_emojiShowing; // Show and hide icon
-                    });
+                    _emojiShowing = !_emojiShowing; // Show and hide icon
+
+                  setState(() {});
                 },
                 controller: textInputController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(50.0),
+                    borderRadius: BorderRadius.circular(50.0.sp),
                   ),
                   contentPadding: EdgeInsets.all(
-                      10), // Optional: Adjust padding around the input
+                      10.sp), // Optional: Adjust padding around the input
                   filled: true,
                   hintText: "Write message...",
-                  hintStyle: TextStyle(color: Colors.black54),
+                  hintStyle: TextStyle(color: Colors.black54, fontSize: 13.sp),
                 ),
               ),
             ),
@@ -252,18 +300,6 @@ class _chatDetailsState extends State<chatDetails> {
               size: 25.sp,
             ),
             onPressed: () async {
-              //   final ImagePicker imagePicker = ImagePicker();
-              // List<XFile>? imageFileList = [];
-
-              // void selectImages() async {
-              //   final List<XFile>? selectedImages = await
-              //           imagePicker.pickMultiImage();
-              //     if (selectedImages!.isNotEmpty) {
-              //         imageFileList.addAll(selectedImages);
-              //     }
-              //     print("Image List Length:" + imageFileList!.length.toString());
-              //     setState((){});
-              // }
               // send messages images choose multiple images.
               final ImagePicker picker = //
                   ImagePicker();
@@ -313,11 +349,8 @@ class _chatDetailsState extends State<chatDetails> {
             child: FloatingActionButton(
               heroTag: null,
               onPressed: () {
+                _navigateToBottom();
                 if (textInputController.text.isNotEmpty) {
-                  _scrollController.animateTo(
-                      _scrollController.position.maxScrollExtent,
-                      duration: Duration(milliseconds: 200),
-                      curve: Curves.easeInOut);
                   AuthProvider.sendMessages(
                       widget.userModel, textInputController.text, Type.text);
                   textInputController.text = ' ';
@@ -349,32 +382,24 @@ class _chatDetailsState extends State<chatDetails> {
               config: Config(
                 columns: 7,
                 emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0),
-                // verticalSpacing: 0,
-                // horizontalSpacing: 0,
-                // gridPadding: EdgeInsets.zero,
-                // initCategory: Category.RECENT,
-                // bgColor: const Color(0xFFF2F2F2),
-                // indicatorColor: Colors.blue,
-                // iconColor: Colors.grey,
-                // iconColorSelected: Colors.blue,
-                // backspaceColor: Colors.blue,
-                // skinToneDialogBgColor: Colors.white,
-                // skinToneIndicatorColor: Colors.grey,
-                // enableSkinTones: true,
-                // recentTabBehavior: RecentTabBehavior.RECENT,
-                // recentsLimit: 28,
-                // replaceEmojiOnLimitExceed: false,
-                // noRecents: const Text(
-                //   'No Recents',
-                //   style: TextStyle(fontSize: 20, color: Colors.black26),
-                //   textAlign: TextAlign.center,
-                // ),
-                // loadingIndicator: const SizedBox.shrink(),
-                // tabIndicatorAnimDuration: kTabScrollDuration,
-                // categoryIcons: const CategoryIcons(),
-                // buttonMode: ButtonMode.MATERIAL,
-                // checkPlatformCompatibility: true,
               ),
             )));
+  }
+
+  // scroll to bottom of screen
+  void _navigateToBottom() {
+    final Duration duration = Duration(milliseconds: 800);
+    final Curve curve = Curves.easeOut;
+    final position = _scrollController.position.maxScrollExtent;
+
+    if (_scrollController.hasClients) {
+      var scrollPosition = this._scrollController.position;
+
+      scrollPosition.animateTo(
+        position,
+        duration: duration,
+        curve: curve,
+      );
+    }
   }
 }

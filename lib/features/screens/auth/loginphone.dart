@@ -168,26 +168,25 @@ class _LoginPageState extends State<LoginPage> {
 
                                     sizeBoxLine(height: 0.03),
                                     MyButtonNotIcon(
-                                      height: md.height * .07,
-                                      width: md.height * .7,
-                                      text: "Send OTP",
-                                      style: textString.text_Button,
-                                      onTap: (() {
-                                        loginwithPhone();
-                                        // nextScreenRe(context, otpScreen());
-                                        // if (_formKey.currentState!.validate()) {
-                                        //   Navigator.push(
-                                        //       context,
-                                        //       MaterialPageRoute(
-                                        //           builder: (context) =>
-                                        //               LoginPage()));
-                                        // } else {
-                                        //   print('not valid');
-                                        // }
-                                      }),
-                                      color: colors.main_color,
-                                      border: 20,
-                                    ),
+                                        text: "Send OTP",
+                                        style: textString.text_Button,
+                                        onTap: (() {
+                                          loginwithPhone();
+                                          // nextScreenRe(context, otpScreen());
+                                          // if (_formKey.currentState!.validate()) {
+                                          //   Navigator.push(
+                                          //       context,
+                                          //       MaterialPageRoute(
+                                          //           builder: (context) =>
+                                          //               LoginPage()));
+                                          // } else {
+                                          //   print('not valid');
+                                          // }
+                                        }),
+                                        color: colors.main_color,
+                                        border: 20,
+                                        height: 40.h,
+                                        width: 100.w),
                                     sizeBoxLine(height: 0.03),
                                     GestureDetector(
                                         onTap: () => Navigator.push(

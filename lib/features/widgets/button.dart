@@ -9,15 +9,12 @@ class MyButton extends StatelessWidget {
   final Function()? onTap;
   final String text;
   final Color color;
-  final double? height;
-  final double? width;
+
   final TextStyle style;
   final double? border;
   const MyButton(
       {super.key,
       required this.icon,
-      required this.width,
-      required this.height,
       required this.onTap,
       required this.text,
       required this.border,
@@ -27,34 +24,32 @@ class MyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     md = MediaQuery.of(context).size;
     return SizedBox(
-        height: height,
-        width: width,
         child: GestureDetector(
-          onTap: onTap,
-          child: Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      icon,
-                      size: 25.sp,
-                      color: Colors.white,
-                    ),
-                    Padding(padding: EdgeInsets.only(right: 10)),
-                    Text(
-                      text,
-                      style: style,
-                    ),
-                  ],
+      onTap: onTap,
+      child: Container(
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 25.sp,
+                  color: Colors.white,
                 ),
-              )),
-        ));
+                Padding(padding: EdgeInsets.only(right: 10)),
+                Text(
+                  text,
+                  style: style,
+                ),
+              ],
+            ),
+          )),
+    ));
   }
 }
 
@@ -84,7 +79,7 @@ class MyButtonNotIcon extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           child: Container(
-              padding: const EdgeInsets.all(15),
+              padding: EdgeInsets.all(15.w),
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(border!),
@@ -92,11 +87,6 @@ class MyButtonNotIcon extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Icon(
-                  //   icon,
-                  //   size: 25.sp,
-                  // ),
-                  // Padding(padding: EdgeInsets.only(right: 10)),
                   Text(
                     text,
                     style: style,
@@ -164,8 +154,9 @@ class buttonTextandIcon extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    return SizedBox.fromSize(
-      size: Size(width!, height!), //  width and height
+    return SizedBox(
+      height: height,
+      width: width,
       child: Material(
         borderRadius: BorderRadius.circular(15),
         color: colorBr, // button color

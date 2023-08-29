@@ -101,8 +101,6 @@ class re_passWord extends StatelessWidget {
                                       title: 'via Email'),
                                   sizeBoxLine(height: 0.015.h),
                                   MyButton(
-                                    height: md.height * .1,
-                                    width: md.height * .7,
                                     style: textString.text_Button,
                                     text: 'Continue',
                                     onTap: (() {

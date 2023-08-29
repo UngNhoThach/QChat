@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../models/onboading_model.dart';
 
@@ -14,7 +15,7 @@ class onBoadingPageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding: EdgeInsets.all(15.sp),
       color: model.color,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,

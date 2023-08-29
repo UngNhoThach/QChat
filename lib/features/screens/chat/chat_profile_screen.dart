@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,6 +20,7 @@ import '../../../../constants/textString.dart';
 import '../../widgets/textFild.dart';
 import '../home_Screen.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../provider/auth_provider.dart';
 
 class chat_profile_screen extends StatefulWidget {
   final chatUserModel userModel;
@@ -63,6 +63,7 @@ class _chat_profile_screenState extends State<chat_profile_screen> {
 
     // logout the user
     Future logout() async {
+      await AuthProvider.updateStatusUser(false);
       await FirebaseAuth.instance
           .signOut()
           .then((value) => GoogleSignIn().signOut().then((value) {
@@ -404,8 +405,6 @@ class _chat_profile_screenState extends State<chat_profile_screen> {
 
                                   sizeBoxLine(height: md.height * 0.00005),
                                   MyButton(
-                                    height: md.height * .06,
-                                    width: md.height * .25,
                                     style: textString.text_ButtonSmall,
                                     text: 'Updates',
                                     onTap: (() {
@@ -429,11 +428,9 @@ class _chat_profile_screenState extends State<chat_profile_screen> {
                                     padding:
                                         EdgeInsets.only(left: md.width * 0.5),
                                     child: MyButton(
-                                      height: md.height * .06,
-                                      width: md.height * .15,
                                       style: textString.text_ButtonSmall,
                                       text: 'Logout',
-                                      onTap: (() {
+                                      onTap: (() async {
                                         showDialog(
                                           context: context,
                                           builder: (BuildContext context) {

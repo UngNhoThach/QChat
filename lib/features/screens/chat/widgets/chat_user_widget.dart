@@ -28,11 +28,6 @@ class chat_user_widget extends StatefulWidget {
 class _chat_user_widgetState extends State<chat_user_widget> {
 // variables
 
-  // waitting for checkSatusUser run first
-  Future<void> _initializeData() async {
-    setState(() {});
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -41,8 +36,6 @@ class _chat_user_widgetState extends State<chat_user_widget> {
   @override
   void initState() {
     super.initState();
-    _initializeData();
-    log('${AuthProvider.getLastMessage(widget.userModel)}');
   }
 
   @override

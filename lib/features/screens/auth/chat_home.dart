@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:qchat/constants/colors.dart';
 
 import '../../models/chat_user_model.dart';
+import '../chat/chat_group_screen.dart';
 import '../chat/chat_profile_screen.dart';
 import '../chat/chat_user_screen.dart';
-import '../chat/chat_group_screen.dart';
 import '../../../provider/auth_provider.dart';
 import '../chat/setting_screen.dart';
 
@@ -22,6 +22,7 @@ class _chatHomeState extends State<chatHome> {
     super.initState();
     // chat_user_screen();
     AuthProvider.getSelfInformation();
+    AuthProvider.FCMtoken();
   }
 
   int currentIndex = 0;
