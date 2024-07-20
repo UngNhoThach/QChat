@@ -1,4 +1,4 @@
-QChat ứng dụng trò chuyện đơn giản
+QChat ứng dụng trò chuyện
 
 
 
@@ -16,17 +16,4 @@ QChat ứng dụng trò chuyện đơn giản
 ![image](https://github.com/UngNhoThach/QChat/assets/120303155/182c3bb1-4492-4d96-9e35-80df637556e8)
 
 
-
-* Chức năng
-- Hiển thị người dùng và tên liên hệ khi đã biết để thêm vào
-- Sử dụng Real-Time Messaging ( Firebase)
-- Đăng nhập bằng Google và số điện thoại
-- Thêm user sử dụng email
-- Thông tin user ( photo, about, online or not, created-at)
-- Trạng thái đã xem hoặc đã gửi
-- Cập nhập thông tin và xóa tin nhắn
-- Message Notification (Push Notification)
-- Tìm kím, lọc user theo email hoặc tên
-- Responsive trên nhiều kích thước màn hình
-- Còn thêm ... 
 
